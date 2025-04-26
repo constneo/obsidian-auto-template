@@ -1,0 +1,11 @@
+{
+  "id": "auto-template",
+  "name": "Auto Template",
+  "version": "1.0.0",
+  "minAppVersion": "0.15.0",
+  "description": "Auto Template for Obsidian.",
+  "author": "constneo",
+  "authorUrl": "",
+  "fundingUrl": "",
+  "isDesktopOnly": false
+}

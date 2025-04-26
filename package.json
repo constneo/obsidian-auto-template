@@ -1,0 +1,27 @@
+{
+  "name": "obsidian-auto-template",
+  "displayName": "Auto Template",
+  "version": "1.0.0",
+  "description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+  "main": "src/main.js",
+  "scripts": {
+    "dev": "node esbuild.config.js",
+    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.js production",
+    "version": "node version-bump.js && git add manifest.json versions.json"
+  },
+  "keywords": [
+    "obsidian",
+    "template"
+  ],
+  "author": "constneo",
+  "license": "MIT",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^22.15.2",
+    "builtin-modules": "5.0.0",
+    "esbuild": "^0.25.3",
+    "obsidian": "latest",
+    "tslib": "^2.8.1",
+    "typescript": "^5.8.3"
+  }
+}
