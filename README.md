@@ -5,7 +5,8 @@
 ```json
 {
   "templatePath": "Obsidian/templates/default.md",
-  "enabled": false
+  "enabled": false,
+  "convertEnabled": false
 }
 ```
 
