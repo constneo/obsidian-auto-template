@@ -10,3 +10,13 @@
 ```
 
 ## Build
+
+```shell
+npm run build
+```
+
+## Plugin files
+
+- main.js
+- manifest.json
+- styles.css （可选）

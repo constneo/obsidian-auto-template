@@ -1,8 +1,11 @@
 {
   "name": "obsidian-auto-template",
   "displayName": "Auto Template",
-  "version": "1.0.0",
+  "version": "25.4.27",
   "description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+  "author": "constneo",
+  "license": "MIT",
+  "type": "module",
   "main": "src/main.js",
   "scripts": {
     "dev": "node esbuild.config.js",
@@ -13,9 +16,6 @@
     "obsidian",
     "template"
   ],
-  "author": "constneo",
-  "license": "MIT",
-  "type": "module",
   "devDependencies": {
     "@types/node": "^22.15.2",
     "builtin-modules": "5.0.0",
