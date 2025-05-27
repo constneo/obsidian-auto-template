@@ -11,7 +11,8 @@ import {
   Editor,
   Menu,
   MarkdownFileInfo,
-  MenuItem
+  MenuItem,
+  Modal
 } from "obsidian"
 
 interface Settings {
@@ -33,18 +34,21 @@ export default class AutoTemplatePlugin extends Plugin {
 
   constructor(app: App, manifest: PluginManifest) {
     super(app, manifest)
+
+    this.update = this.update.bind(this)
+    this.ready = this.ready.bind(this)
+    this.contextMenu = this.contextMenu.bind(this)
+    this.convert = this.convert.bind(this)
   }
 
   async onload() {
+    console.log("Register plugin Auto Template")
+
     await this.loadSettings()
 
     if (!this.settings.enabled) return
 
-    this.onReady = this.onReady.bind(this)
-    this.onEditorMenu = this.onEditorMenu.bind(this)
-    this.convert = this.convert.bind(this)
-
-    this.app.workspace.onLayoutReady(this.onReady)
+    this.app.workspace.onLayoutReady(this.ready)
 
     // 添加设置选项卡
     const settingTab = new AutoTemplateSettingTab(this.app, this)
@@ -59,20 +63,52 @@ export default class AutoTemplatePlugin extends Plugin {
     item.createEl("span", { text: "Hello from the status bar 👋" })
   }
 
+  /**
+   * 创建一个一个图标
+   * 图标名字@see  {@link https://lucide.dev/ Lucide icon library},
+   */
   createIcon() {
     this.icon = this.addRibbonIcon("refresh-cw", "Convert Path", this.convert)
     this.icon.addClass("custom-class")
   }
 
-  command() {
+  /**
+   * 向命令面板添加命令
+   */
+  private commands() {
     this.addCommand({
-      id: "convert-path-to-unix-style",
+      id: "auto-template-to-unix-style",
       name: "Convert Path",
       callback: this.convert
     })
+
+    // This adds a complex command that can check whether the current state of the app allows execution of the command
+    // this.addCommand({
+    //   id: "open-sample-modal-complex",
+    //   name: "Open sample modal (complex)",
+    //   checkCallback: (checking: boolean) => {
+    //     const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView)
+    //     if (markdownView) {
+    //       // 如果 checking 为 true，我们只是 “检查” 命令是否可以运行。
+    //       // 如果 checking 为 false，那么我们想要实际执行该作。
+    //       if (!checking) {
+    //         new SampleModal(this.app).open()
+    //       }
+
+    //       // This command will only show up in Command Palette when the check function returns true
+    //       return true
+    //     }
+    //   }
+    // })
+
+    this.addCommand({
+      id: "auto-template-update-content",
+      name: "Update content with Template",
+      callback: this.update
+    })
   }
 
-  convert(e?: MouseEvent | KeyboardEvent) {
+  private convert(e?: MouseEvent | KeyboardEvent) {
     // const file = this.app.workspace.activeEditor?.file as TFile
     // const content = await this.app.vault.read(file)
     // console.log(content)
@@ -97,32 +133,63 @@ export default class AutoTemplatePlugin extends Plugin {
    *
    * See https://docs.obsidian.md/Reference/TypeScript+API/EventRef
    */
-  private onReady() {
-    const create = this.app.vault.on("create", this.onCreate, this)
+  private ready() {
+    const create = this.app.vault.on("create", this.create, this)
     this.registerEvent(create)
 
     const open = this.app.workspace.on("file-open", this.onUpdateIcon, this)
     this.registerEvent(open)
 
-    if (this.settings.convertEnabled) {
-      const menu = this.app.workspace.on("editor-menu", this.onEditorMenu, this)
+    if (this.settings.enabled) {
+      const menu = this.app.workspace.on("editor-menu", this.contextMenu, this)
       this.registerEvent(menu)
     }
   }
 
-  onEditorMenu(menu: Menu, editor: Editor, info: MarkdownView | MarkdownFileInfo) {
+  /**
+   * 右键菜单
+   * @param menu
+   * @param editor
+   * @param info
+   * @returns
+   */
+  contextMenu(menu: Menu, editor: Editor, info: MarkdownView | MarkdownFileInfo) {
     const e = this.editor()
 
     if (!e) return
 
     const add = (item: MenuItem) => {
-      item.setTitle("Convert 👈").setIcon("document").onClick(this.convert)
+      item.setTitle("Convert Path 👈").setIcon("document").onClick(this.convert)
     }
 
     menu.addItem(add)
+
+    const update = (item: MenuItem) => {
+      item.setTitle("Update").setIcon("chevrons-left-right-ellipsis").onClick(this.update)
+    }
+
+    menu.addItem(update)
   }
 
-  private async onCreate(file: TAbstractFile) {
+  /***
+   * 点击右键菜单,将模板内容插入当前的文档
+   */
+  private async update() {
+    const file = this.app.workspace.getActiveFile()
+    if (file) {
+      // const content = this.create(file as TFile)
+      const content = await this.app.vault.read(file)
+      if (content.length === 0) {
+        this.create(file)
+      }
+    }
+  }
+
+  /**
+   * 创建的新的md文件的时候,插入模板内容.
+   * @param file
+   */
+  private async create(file: TFile) {
     if (file instanceof TFile && this.settings.enabled) {
       try {
         const templateFile = await this.checkTemplate()
@@ -189,7 +256,7 @@ export default class AutoTemplatePlugin extends Plugin {
 
     if (this.settings.convertEnabled && this.editor()) {
       this.createIcon()
-      this.command()
+      this.commands()
     }
   }
 
@@ -204,6 +271,22 @@ export default class AutoTemplatePlugin extends Plugin {
     await this.saveData(this.settings)
 
     this.onUpdateIcon()
+  }
+}
+
+class SampleModal extends Modal {
+  constructor(app: App) {
+    super(app)
+  }
+
+  onOpen() {
+    const { contentEl } = this
+    contentEl.setText("Woah!")
+  }
+
+  onClose() {
+    const { contentEl } = this
+    contentEl.empty()
   }
 }
 

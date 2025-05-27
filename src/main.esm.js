@@ -2,7 +2,7 @@
 
 async function load() {
   try {
-    const ret = await import("./src/main.mjs")
+    const ret = await import("./main.mjs")
     return ret
   } catch (error) {
     console.log("error:", error)

@@ -9,6 +9,8 @@ import {
   Setting
 } from "obsidian"
 
+// 官方示例插件
+
 // Remember to rename these classes and interfaces!
 
 interface MyPluginSettings {
