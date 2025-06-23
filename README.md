@@ -21,3 +21,9 @@ npm run build
 - main.js
 - manifest.json
 - styles.css （可选）
+
+## Open devtools
+
+```
+Ctrl+Shift+i
+```
